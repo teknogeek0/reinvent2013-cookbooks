@@ -54,7 +54,7 @@ end
 
 %w{ HistoryEventIterator.php IHActWorker_EIP.php IHActWorker_SrcDestCheck.php IHActWorker_VPCRouteMapper.php IHDeciderStart.php IHQueueWatcher.php IHSWFDecider.php IHSWFsetup.php }.each do |ifile|
   cookbook_file "#{node['InfraHelper']['base_dir']}/bin/#{ifile}" do
-   source "{ifile}"
+   source "#{ifile}"
    mode 0755
    owner "root"
    group "root"
