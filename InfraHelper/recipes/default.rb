@@ -28,16 +28,19 @@ directory "#{node['InfraHelper']['base_dir']}" do
   recursive true
 end
 
+directory "/tmp/secure-dir" do
+  action :create
+  mode 0700
+  owner "root"
+  group "root"
+end
+
 template "config.inc.php" do
   path "#{node['InfraHelper']['base_dir']}/config.inc.php"
   source "config.inc.php.erb"
   owner "root"
   group "root"
   mode 0644
-  variables(
-   :key		=> node['InfraHelper']['AWS_key'],
-   :secret	=> node['InfraHelper']['AWS_secret']
-  )
   backup false
 end
 

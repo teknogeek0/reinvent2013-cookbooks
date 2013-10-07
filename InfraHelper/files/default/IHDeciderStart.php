@@ -21,7 +21,7 @@
   require_once 'IHSWFDecider.php';
 
   // Setup
-	$swf = new AmazonSWF();
+	$swf = new AmazonSWF(array('default_cache_config' => '/tmp/secure-dir'));
 	$workflow_domain = $IHSWFDomain;
 	$workflow_type_name = "IHWorkFlowMain";
 	$activity_task_list = "mainWorkFlowTaskList";

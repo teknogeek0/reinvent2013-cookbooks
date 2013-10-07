@@ -18,7 +18,7 @@
   require_once 'IHResources.php';
  
 	// Setup
-	$swf = new AmazonSWF();
+	$swf = new AmazonSWF(array('default_cache_config' => '/tmp/secure-dir'));
 	$workflow_domain = $IHSWFDomain;
 	$workflow_type_name = "IHWorkFlowMain";
 

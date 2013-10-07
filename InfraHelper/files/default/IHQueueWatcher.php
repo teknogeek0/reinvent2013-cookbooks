@@ -19,12 +19,12 @@
   require_once 'IHResources.php';
 
   // Setup
-	$swf = new AmazonSWF();
+	$swf = new AmazonSWF(array('default_cache_config' => '/tmp/secure-dir'));
 	$workflow_domain = $IHSWFDomain;
 	$workflow_type_name = "IHWorkFlowMain";
 
   ##try and connect to SQS and get a message!
-  $sqs = new AmazonSQS();
+  $sqs = new AmazonSQS(array('default_cache_config' => '/tmp/secure-dir'));
   $response = $sqs->receive_message($IHQueue);
 
   ##if this passes it means we were able to talk to SQS just fine.
