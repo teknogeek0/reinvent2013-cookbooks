@@ -53,7 +53,7 @@ end
 
 
 %w{ HistoryEventIterator.php IHActWorker_EIP.php IHActWorker_SrcDestCheck.php IHActWorker_VPCRouteMapper.php IHDeciderStart.php IHQueueWatcher.php IHSWFDecider.php IHSWFsetup.php }.each do |ifile|
-  cookbook_file "/opt/#{node['InfraHelper']['IHelper_dir']}/bin/{ifile}" do
+  cookbook_file "#{node['InfraHelper']['base_dir']}/bin/{ifile}" do
    source "{ifile}"
    mode 0755
    owner "root"
@@ -82,27 +82,27 @@ execute "IHSWFsetup.php" do
 end
 
 cron "IHQeueWatcher" do
-  command "/usr/bin/php /opt/InfraHelper/bin/IHQueueWatcher.php >>/tmp/IHstuff.log 2>&1"
-  only_if do File.exist?("/opt/InfraHelper/bin/IHQueueWatcher.php") end
+  command "/usr/bin/php #{node['InfraHelper']['base_dir']}/bin/IHQueueWatcher.php >>/tmp/IHstuff.log 2>&1"
+  only_if do File.exist?("#{node['InfraHelper']['base_dir']}/bin/IHQueueWatcher.php") end
 end
 
 cron "IHDeciderStart" do
-  command "/usr/bin/php /opt/InfraHelper/bin/IHDeciderStart.php >>/tmp/IHstuff.log 2>&1"
-  only_if do File.exist?("/opt/InfraHelper/bin/IHDeciderStart.php") end
+  command "/usr/bin/php #{node['InfraHelper']['base_dir']}/bin/IHDeciderStart.php >>/tmp/IHstuff.log 2>&1"
+  only_if do File.exist?("#{node['InfraHelper']['base_dir']}/bin/IHDeciderStart.php") end
 end
 
 cron "IHActWorker_EIP" do
-  command "/usr/bin/php /opt/InfraHelper/bin/IHActWorker_EIP.php >>/tmp/IHstuff.log 2>&1"
-  only_if do File.exist?("/opt/InfraHelper/bin/IHActWorker_EIP.php") end
+  command "/usr/bin/php #{node['InfraHelper']['base_dir']}/bin/IHActWorker_EIP.php >>/tmp/IHstuff.log 2>&1"
+  only_if do File.exist?("#{node['InfraHelper']['base_dir']}/bin/IHActWorker_EIP.php") end
 end
 
 cron "IHActWorker_SrcDestCheck" do
-  command "/usr/bin/php /opt/InfraHelper/bin/IHActWorker_SrcDestCheck.php >>/tmp/IHstuff.log 2>&1"
-  only_if do File.exist?("/opt/InfraHelper/bin/IHActWorker_SrcDestCheck.ph") end
+  command "/usr/bin/php #{node['InfraHelper']['base_dir']}/bin/IHActWorker_SrcDestCheck.php >>/tmp/IHstuff.log 2>&1"
+  only_if do File.exist?("#{node['InfraHelper']['base_dir']}/bin/IHActWorker_SrcDestCheck.ph") end
 end
 
 cron "IHActWorker_VPCRouteMapper" do
-  command "/usr/bin/php /opt/InfraHelper/bin/IHActWorker_VPCRouteMapper.php >>/tmp/IHstuff.log 2>&1"
-  only_if do File.exist?("/opt/InfraHelper/bin/IHActWorker_VPCRouteMapper.php") end
+  command "/usr/bin/php #{node['InfraHelper']['base_dir']}/bin/IHActWorker_VPCRouteMapper.php >>/tmp/IHstuff.log 2>&1"
+  only_if do File.exist?("#{node['InfraHelper']['base_dir']}/bin/IHActWorker_VPCRouteMapper.php") end
 end
 
