@@ -100,7 +100,7 @@ end
 
 cron "IHActWorker_SrcDestCheck" do
   command "/usr/bin/php #{node['InfraHelper']['base_dir']}/bin/IHActWorker_SrcDestCheck.php >>/tmp/IHstuff.log 2>&1"
-  only_if do File.exist?("#{node['InfraHelper']['base_dir']}/bin/IHActWorker_SrcDestCheck.ph") end
+  only_if do File.exist?("#{node['InfraHelper']['base_dir']}/bin/IHActWorker_SrcDestCheck.php") end
 end
 
 cron "IHActWorker_VPCRouteMapper" do
