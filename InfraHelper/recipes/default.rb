@@ -71,7 +71,9 @@ template "IHResources.php" do
   mode 0644
   variables(
    :IH_queue          => node['InfraHelper']['IH_queue'],
-   :IHswf_domain      => node['InfraHelper']['IHswf_domain']
+   :IHswf_domain      => node['InfraHelper']['IHswf_domain'],
+   :SWF_Region        => node['InfraHelper']['SWF_Region'],
+   :EC2_Region        => node['InfraHelper']['EC2_Region']
   )
   backup false
 end

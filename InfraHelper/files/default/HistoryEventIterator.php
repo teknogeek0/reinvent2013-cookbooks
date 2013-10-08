@@ -14,8 +14,8 @@
  * permissions and limitations under the License.
  */
  ## pull in the required libs and supporting files we'll need to talk to AWS services
-  require_once 'AWSSDKforPHP/sdk.class.php';
   require_once 'IHResources.php';
+  require_once 'AWSSDKforPHP/sdk.class.php';
 
 /*
  * When histories become long, you may need to paginate through the events

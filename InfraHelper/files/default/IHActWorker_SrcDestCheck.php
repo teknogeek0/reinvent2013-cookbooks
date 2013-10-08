@@ -15,11 +15,12 @@
 */
 
   ## pull in the required libs and supporting files we'll need to talk to AWS services
-  require_once 'AWSSDKforPHP/sdk.class.php';
   require_once 'IHResources.php';
+  require_once 'AWSSDKforPHP/sdk.class.php';
  
   // Setup
   $swf = new AmazonSWF(array('default_cache_config' => '/tmp/secure-dir'));
+  $swf->set_region($SWF_Region);
   $workflow_domain = $IHSWFDomain;
   $workflow_type_name = "IHWorkFlowMain";
 
@@ -93,6 +94,7 @@
       $MyInstance=$input;
 
       $ec2 = new AmazonEC2(array('default_cache_config' => '/tmp/secure-dir'));
+      $ec2->set_region($EC2_Region);
       
       $ec2_opt = array(
       'SourceDestCheck.Value'=> "false"
