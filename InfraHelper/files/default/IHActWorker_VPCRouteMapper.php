@@ -93,6 +93,7 @@
       $MyInstance=$input;
 
       $ec2 = new AmazonEC2(array('default_cache_config' => '/tmp/secure-dir'));
+      $ec2->set_region($GLOBALS["EC2_Region"]);
 
       #get some information about our instance
       $response = $ec2->describe_instances(array(

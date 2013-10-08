@@ -94,7 +94,7 @@
       $MyInstance=$input;
 
       $ec2 = new AmazonEC2(array('default_cache_config' => '/tmp/secure-dir'));
-      $ec2->set_region($EC2_Region);
+      $ec2->set_region($GLOBALS["EC2_Region"]);
       
       $ec2_opt = array(
       'SourceDestCheck.Value'=> "false"
