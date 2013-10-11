@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+include_recipe 'deploy'
+
 if node.has_key?("ec2")
   server_fqdn = node['ec2']['public_hostname']
 else
@@ -54,7 +56,7 @@ end
 #  creates "#{node['wordpress']['dir']}/wp-settings.php"
 #end
 
-template "#{node[:deploy][application][:deploy_to]}/wp-config.php" do
+template "#{deploy[:deploy_to]}/wp-config.php" do
   source "wp-config.php.erb"
   owner "root"
   group "root"
@@ -72,9 +74,9 @@ apache_site "000-default" do
   enable false
 end
 
-web_app "wordpress" do
-  template "wordpress.conf.erb"
-  docroot node['wordpress']['dir']
-  server_name server_fqdn
-  server_aliases node['wordpress']['server_aliases']
-end
+#web_app "wordpress" do
+#  template "wordpress.conf.erb"
+#  docroot node['wordpress']['dir']
+#  server_name server_fqdn
+#  server_aliases node['wordpress']['server_aliases']
+#end
