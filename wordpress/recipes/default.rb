@@ -54,7 +54,7 @@ end
 #  creates "#{node['wordpress']['dir']}/wp-settings.php"
 #end
 
-template "#{node['wordpress']['dir']}/wp-config.php" do
+template "#{node[:deploy][application][:deploy_to]}/wp-config.php" do
   source "wp-config.php.erb"
   owner "root"
   group "root"
