@@ -15,18 +15,21 @@
 # limitations under the License.
 #
 
+include_recipe 'deploy'
 
-template "#{deploy[:deploy_to]}/wp-config.php" do
-  source "wp-config.php.erb"
-  owner "root"
-  group "root"
-  mode "0644"
-  variables(
-    :database        => node['wordpress']['db']['database'],
-    :user            => node['wordpress']['db']['user'],
-    :password        => node['wordpress']['db']['password'],
-    :dbhost          => node['wordpress']['dbhost'],
-    :lang            => node['wordpress']['languages']['lang']
-  )
+node[:deploy].each do |application, deploy|
+
+  template "#{deploy[:deploy_to]}/wp-config.php" do
+    source "wp-config.php.erb"
+    owner "root"
+    group "root"
+    mode "0644"
+    variables(
+      :database        => node['wordpress']['db']['database'],
+      :user            => node['wordpress']['db']['user'],
+      :password        => node['wordpress']['db']['password'],
+      :dbhost          => node['wordpress']['dbhost'],
+      :lang            => node['wordpress']['languages']['lang']
+    )
+  end
 end
-
