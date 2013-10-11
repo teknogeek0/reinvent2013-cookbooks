@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-include_recipe 'deploy'
 
 if node.has_key?("ec2")
   server_fqdn = node['ec2']['public_hostname']
