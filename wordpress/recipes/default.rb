@@ -16,45 +16,6 @@
 #
 
 
-if node.has_key?("ec2")
-  server_fqdn = node['ec2']['public_hostname']
-else
-  server_fqdn = node['fqdn']
-end
-
-#if node['wordpress']['version'] == 'latest'
-#  # WordPress.org does not provide a sha256 checksum, so we'll use the sha1 they do provide
-#  require 'digest/sha1'
-#  require 'open-uri'
-#  local_file = "#{Chef::Config[:file_cache_path]}/wordpress-latest.tar.gz"
-#  latest_sha1 = open('http://wordpress.org/latest.tar.gz.sha1') {|f| f.read }
-#  unless File.exists?(local_file) && ( Digest::SHA1.hexdigest(File.read(local_file)) == latest_sha1 )
-#    remote_file "#{Chef::Config[:file_cache_path]}/wordpress-latest.tar.gz" do
-#      source "http://wordpress.org/latest.tar.gz"
-#      mode "0644"
-#    end
-#  end
-#else
-#  remote_file "#{Chef::Config[:file_cache_path]}/wordpress-#{node['wordpress']['version']}.tar.gz" do
-#    source "#{node['wordpress']['repourl']}/wordpress-#{node['wordpress']['version']}.tar.gz"
-#    mode "0644"
-#  end
-#end
-
-directory node['wordpress']['dir'] do
-  owner "root"
-  group "root"
-  mode "0755"
-  action :create
-  recursive true
-end
-
-#execute "untar-wordpress" do
-#  cwd node['wordpress']['dir']
-#  command "tar --strip-components 1 -xzf #{Chef::Config[:file_cache_path]}/wordpress-#{node['wordpress']['version']}.tar.gz"
-#  creates "#{node['wordpress']['dir']}/wp-settings.php"
-#end
-
 template "#{deploy[:deploy_to]}/wp-config.php" do
   source "wp-config.php.erb"
   owner "root"
@@ -69,13 +30,3 @@ template "#{deploy[:deploy_to]}/wp-config.php" do
   )
 end
 
-apache_site "000-default" do
-  enable false
-end
-
-#web_app "wordpress" do
-#  template "wordpress.conf.erb"
-#  docroot node['wordpress']['dir']
-#  server_name server_fqdn
-#  server_aliases node['wordpress']['server_aliases']
-#end
