@@ -29,7 +29,8 @@ node[:deploy].each do |application, deploy|
       :user            => node['wordpress']['db']['user'],
       :password        => node['wordpress']['db']['password'],
       :dbhost          => node['wordpress']['dbhost'],
-      :lang            => node['wordpress']['languages']['lang']
+      :lang            => node['wordpress']['languages']['lang'],
+      :cachenode       => node['wordpress']['cachenode']
     )
   end
 end
