@@ -157,7 +157,6 @@
   	MakeActivity($swf, $workflow_domain, $workflow_type_name, "EIPMapper", "1.0", "Maps EIPs to Instances");
   	MakeActivity($swf, $workflow_domain, $workflow_type_name, "SrcDestCheckSet", "1.0", "Disable Source/Destination Check");
 		MakeActivity($swf, $workflow_domain, $workflow_type_name, "VPCRouteMapper", "1.0", "Map routes in a VPC due to an instance change");
-		MakeActivity($swf, $workflow_domain, $workflow_type_name, "ChefRemoveClientNode", "1.0", "Remove Chef nodes and clients in response to an instance no longer existing");
 		echo "All done with creating the WorkFlow and Activity Types" . PHP_EOL;
   }
 
