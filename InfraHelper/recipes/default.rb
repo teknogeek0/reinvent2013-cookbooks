@@ -80,7 +80,7 @@ end
 
 execute "IHSWFsetup.php" do
   cwd "#{node['InfraHelper']['base_dir']}/bin/"
-  command "/usr/bin/php IHSWFsetup.php"
+  command "/usr/bin/php #{node['InfraHelper']['base_dir']}/bin/IHSWFsetup.php"
 end
 
 cron "IHQeueWatcher" do
