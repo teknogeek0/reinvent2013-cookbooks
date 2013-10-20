@@ -15,6 +15,7 @@
  */
   ## pull in the required libs and supporting files we'll need to talk to AWS services
   require_once 'IHResources.php';
+  require_once 'IHCommon.php';
   require_once 'AWSSDKforPHP/sdk.class.php';
  
 	// Setup
@@ -39,14 +40,14 @@
       $MyStatus = $typeInfo["status"];
 		  if ($MyStatus == "REGISTERED")
 		  {
-		    echo "The workflow exists, so move on to creating the Activities" . PHP_EOL;
+		    cheap_logger($ACTIVITY_NAME, "The workflow exists, so move on to creating the Activities");
 		    DoMakeActivities($swf, $workflow_domain, $workflow_type_name);
 		  }
 		}
 	  else
 	  {
 			##Register a new workflow type
-			echo '# Registering a new workflow type...' . PHP_EOL;
+			cheap_logger($ACTIVITY_NAME, "Registering a new workflow type...");
 			$workflow_type = $swf->register_workflow_type(array(
 		    'domain'             => $workflow_domain,
 		    'name'               => $workflow_type_name,
@@ -60,7 +61,7 @@
 			 
 			if ($workflow_type->isOK())
 			{
-			    echo "Waiting for the workflow type to become ready..." . PHP_EOL;
+			    cheap_logger($ACTIVITY_NAME, "Waiting for the workflow type to become ready...");
 			 
 			    do {
 			        sleep(1);
@@ -75,13 +76,13 @@
 			    }
 			    while ((string) $describe->body->typeInfo->status !== AmazonSWF::STATUS_REGISTERED);
 			 
-			    echo "Workflow type $workflow_type_name was created successfully. Now lets make Activities." . PHP_EOL;
+			    cheap_logger($ACTIVITY_NAME, "Workflow type $workflow_type_name was created successfully. Now lets make Activities.");
 			    DoMakeActivities($swf, $workflow_domain, $workflow_type_name);
 
 			}
 			else
 			{
-			  echo "Workflow type $workflow_type_name creation failed." . PHP_EOL;
+			  cheap_logger($ACTIVITY_NAME, "Workflow type $workflow_type_name creation failed.");
 			  exit;
 			}
 		} 
@@ -104,17 +105,17 @@
       $myVersion = $typeInfo["activityType"]["version"];
 		  if ($MyStatus == "REGISTERED" && $myVersion== $Goalversion)
 		  {
-		    echo "The Activity $activity_type_name exists. Moving on." . PHP_EOL;
+		    cheap_logger($ACTIVITY_NAME, "The Activity $activity_type_name exists. Moving on.");
 		  }
 		  else
 		  {
-		  	echo "Something went wrong here. Check stuff out.". PHP_EOL;
+		  	cheap_logger($ACTIVITY_NAME, "Something went wrong here. Check stuff out.");
 		  }
 		}
 	  else
 	  {
 	    ##Register a new activity type
-			echo "Registering a new activity type..." . PHP_EOL;
+			cheap_logger($ACTIVITY_NAME, "Registering a new activity type...");
 			$workflow_type = $swf->register_activity_type(array(
 		    'domain'             => $workflow_domain,
 		    'name'               => $activity_type_name,
@@ -128,7 +129,7 @@
 			 
 			if ($workflow_type->isOK())
 			{
-			    echo "Waiting for the activity type $activity_type_name to become ready..." . PHP_EOL;
+			    cheap_logger($ACTIVITY_NAME, "Waiting for the activity type $activity_type_name to become ready...");
 			 
 			    do {
 			        sleep(1);
@@ -143,11 +144,11 @@
 			    }
 			    while ((string) $describe->body->typeInfo->status !== AmazonSWF::STATUS_REGISTERED);
 			 
-			    echo "Activity type $activity_type_name was created successfully." . PHP_EOL;
+			    cheap_logger($ACTIVITY_NAME, "Activity type $activity_type_name was created successfully.");
 			}
 			else
 			{
-			    echo "Activity type $activity_type_name creation failed.";
+			    cheap_logger($ACTIVITY_NAME, "Activity type $activity_type_name creation failed.");
 			}
 	  }
   }
@@ -157,7 +158,7 @@
   	MakeActivity($swf, $workflow_domain, $workflow_type_name, "EIPMapper", "1.0", "Maps EIPs to Instances");
   	MakeActivity($swf, $workflow_domain, $workflow_type_name, "SrcDestCheckSet", "1.0", "Disable Source/Destination Check");
 		MakeActivity($swf, $workflow_domain, $workflow_type_name, "VPCRouteMapper", "1.0", "Map routes in a VPC due to an instance change");
-		echo "All done with creating the WorkFlow and Activity Types" . PHP_EOL;
+		cheap_logger($ACTIVITY_NAME, "All done with creating the WorkFlow and Activity Types");
   }
 
 
