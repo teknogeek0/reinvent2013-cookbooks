@@ -16,6 +16,7 @@
 
   ## pull in the required libs and supporting files we'll need to talk to AWS services
   require_once 'IHResources.php';
+  require_once 'IHCommon.php';
   require_once 'AWSSDKforPHP/sdk.class.php';
  
   // Setup
@@ -63,26 +64,32 @@
         
         if ($complete_response->isOK())
         {
-            echo "RespondActivityTaskCompleted SUCCESS". PHP_EOL;
+            $logMsg="RespondActivityTaskCompleted SUCCESS";
+            cheap_logger($ACTIVITY_NAME, $logMsg);
         } 
         else 
         {
           // a real application may want to report this failure and retry
-          echo "RespondActivityTaskCompleted FAIL". PHP_EOL;
-          echo "Response body:". PHP_EOL;
+          $logMsg="RespondActivityTaskCompleted FAIL";
+          cheap_logger($ACTIVITY_NAME, $logMsg);
+          $logMsg="Response body:";
+          cheap_logger($ACTIVITY_NAME, $logMsg);
           print_r($complete_response->body);
-          echo "Request JSON:". PHP_EOL;
+          $logMsg="Request JSON:";
+          cheap_logger($ACTIVITY_NAME, $logMsg);
           echo json_encode($complete_opt) . "\n";
         }
     } 
     else 
     {
-        echo "PollForActivityTask received empty response.". PHP_EOL;
+        $logMsg="PollForActivityTask received empty response.";
+        cheap_logger($ACTIVITY_NAME, $logMsg);
     }
   } 
   else 
   {
-      echo "Looks like we had trouble talking to SWF and getting a valid response.". PHP_EOL;
+      $failMsg="Looks like we had trouble talking to SWF and getting a valid response.";
+      cheap_logger($ACTIVITY_NAME, $failMsg);
       print_r($response->body);
   }
 
@@ -116,21 +123,19 @@
         if($response2->isOK())
         {
           $MyRTableID = trim((string)$response2->body->routeTableSet->item->routeTableId);
-          ##echo "this is my route table id: ".$MyRTableID.PHP_EOL;
           $response3 = $ec2->replace_route($MyRTableID, '0.0.0.0/0', array(
               'InstanceId' => $MyInstance
           ));
 
           if($response3->isOK())
           {
-            $successMsg="SUCCESS: VPCRouteMapper: Successfully set the default route on the private route table: ".$MyRTableID." to instance: ".$MyInstance.PHP_EOL;
-            echo $successMsg;
+            $successMsg="SUCCESS: VPCRouteMapper: Successfully set the default route on the private route table: ".$MyRTableID." to instance: ".$MyInstance;
+            cheap_logger($ACTIVITY_NAME, $successMsg);
             return $successMsg;
           }
           else
           {
             $MyErrCode = trim((string)$response3->body->Errors->Error->Message);
-            ##echo "this is my message".$MyErrCode.PHP_EOL;
             if(preg_match("/CreateRoute/", $MyErrCode))
             {
               $response4 = $ec2->create_route($MyRTableID, '0.0.0.0/0', array(
@@ -139,22 +144,22 @@
 
               if($response4->isOK())
               {
-                $successMsg="SUCCESS: VPCRouteMapper: Successfully set the default route on the private route table: ".$MyRTableID." to instance: ".$MyInstance.PHP_EOL;
-                echo $successMsg;
+                $successMsg="SUCCESS: VPCRouteMapper: Successfully set the default route on the private route table: ".$MyRTableID." to instance: ".$MyInstance;
+                cheap_logger($ACTIVITY_NAME, $successMsg);
                 return $successMsg;
               }
               else
               {
-                $failMsg="FAIL: VPCRouteMapper: There was a problem setting the default routes." . PHP_EOL;
-                echo $failMsg;
+                $failMsg="FAIL: VPCRouteMapper: There was a problem setting the default routes.";
+                cheap_logger($ACTIVITY_NAME, $failMsg);
                 var_dump($response4->body);
                 return $failMsg;
               }
             }
             else
             {
-              $failMsg="FAIL: VPCRouteMapper: There was a problem setting the default routes." . PHP_EOL;
-              echo $failMsg;
+              $failMsg="FAIL: VPCRouteMapper: There was a problem setting the default routes.";
+              cheap_logger($ACTIVITY_NAME, $failMsg);
               var_dump($response3->body);
               return $failMsg;
             }
@@ -162,22 +167,22 @@
         }
         else
         {
-          $failMsg = "FAIL: Unable to get information about the Private route table in this VPC: ".$MyVPC.PHP_EOL;
-          echo $failMsg;
+          $failMsg = "FAIL: Unable to get information about the Private route table in this VPC: ".$MyVPC;
+          cheap_logger($ACTIVITY_NAME, $failMsg);
           return $failMsg;
         }
       }
       else
       {
-        $failMsg = "FAIL: Unable to talk to the EC2 API. Something is wrong.".PHP_EOL;
-        echo $failMsg;
+        $failMsg = "FAIL: Unable to talk to the EC2 API. Something is wrong.";
+        cheap_logger($ACTIVITY_NAME, $failMsg);
         return $failMsg;
       }
     }
     else
     {
-      $failMsg="FAIL: VPCRouteMapper: We got input that we don't understand: ".$input. PHP_EOL;
-      echo $failMsg;
+      $failMsg="FAIL: VPCRouteMapper: We got input that we don't understand: ".$input;
+      cheap_logger($ACTIVITY_NAME, $failMsg);
       return $failMsg;
     }
   }

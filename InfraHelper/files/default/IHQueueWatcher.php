@@ -16,6 +16,7 @@
 
   ## pull in the required libs and supporting files we'll need to talk to AWS services
   require_once 'IHResources.php';
+  require_once 'IHCommon.php';
   require_once 'AWSSDKforPHP/sdk.class.php';
 
   // Setup
@@ -23,6 +24,8 @@
 	$swf->set_region($SWF_Region);
 	$workflow_domain = $IHSWFDomain;
 	$workflow_type_name = "IHWorkFlowMain";
+
+	$ACTIVITY_NAME = "QueueWatcher";
 
   ##try and connect to SQS and get a message!
   $sqs = new AmazonSQS(array('default_cache_config' => '/tmp/secure-dir'));
@@ -56,42 +59,49 @@
 
 					if ( $eventType == "autoscaling:EC2_INSTANCE_LAUNCH" )
 					{
-						echo "Notification of launch of a new instance" . PHP_EOL;
+						$logMsg="Notification of launch of a new instance";
+						cheap_logger($ACTIVITY_NAME, $logMsg);
 						AddExecution($swf, $workflow_domain, $workflow_type_name, $eventType, $instanceID);
 					}
 					elseif ( $eventType == "autoscaling:EC2_INSTANCE_LAUNCH_ERROR" )
 					{
-						echo "Notification of a failed launch of a new instance" . PHP_EOL;
+						$logMsg="Notification of a failed launch of a new instance";
+						cheap_logger($ACTIVITY_NAME, $logMsg);
 						##AddExecution($swf, $workflow_domain, $workflow_type_name, $eventType, $instanceID);
 						##do nothing, we'll have no handlers for this
 					}
 					elseif ( $eventType == "autoscaling:EC2_INSTANCE_TERMINATE" )
 					{
-						echo "Notification of an instance termination" . PHP_EOL;
+						$logMsg="Notification of an instance termination";
+						cheap_logger($ACTIVITY_NAME, $logMsg);
 						##AddExecution($swf, $workflow_domain, $workflow_type_name, $eventType, $instanceID);
 						##do nothing, we have no handlers yet for this.
 					}
 					elseif ( $eventType == "autoscaling:EC2_INSTANCE_TERMINATE_ERROR" )
 					{
-						echo "Notification of an error of a terminate instance" . PHP_EOL;
+						$logMsg="Notification of an error of a terminate instance";
+						cheap_logger($ACTIVITY_NAME, $logMsg);
 						##AddExecution($swf, $workflow_domain, $workflow_type_name, $eventType, $instanceID);
 						##do nothing, we'll have no handlers for this.
 					}
 					else
 					{
-						echo "Looks like there's a new autoscaling notification I can't handle yet! Fix me!" . PHP_EOL;
+						$logMsg="Looks like there's a new autoscaling notification I can't handle yet! Fix me!";
+						cheap_logger($ACTIVITY_NAME, $logMsg);
 		        print_r($message_attrs);
 					}
 					
 			  }
 			  elseif ( $eventType == "autoscaling:TEST_NOTIFICATION" )
 			  {
-			   echo "Just a test of a new Auto Scaling notifications topic, nothing for us to do." . PHP_EOL;
+			   $logMsg="Just a test of a new Auto Scaling notifications topic, nothing for us to do.";
+			   cheap_logger($ACTIVITY_NAME, $logMsg);
 			  }
 		  }
 		  else
 		  {
-		    echo "Something made its way into this SQS queue that I am not yet able to understand. Woopsie!" . PHP_EOL;
+		    $logMsg="Something made its way into this SQS queue that I am not yet able to understand. Woopsie!";
+		    cheap_logger($ACTIVITY_NAME, $logMsg);
 		    print_r($message_attrs);
 		    
 		  }
@@ -99,13 +109,15 @@
 		}
 		else
 		{
-			echo "No messages for me to take action on. See ya later." . PHP_EOL;
+			$logMsg="No messages for me to take action on. See ya later.";
+			cheap_logger($ACTIVITY_NAME, $logMsg);
 			exit;
 		}
   }
   else
   {
-  	echo "Failure to communicate with SQS. What did you do wrong?" . PHP_EOL;
+  	$logMsg="Failure to communicate with SQS. What did you do wrong?";
+  	cheap_logger($ACTIVITY_NAME, $logMsg);
   	var_dump($response);
   	exit;
   }
@@ -116,12 +128,14 @@
     $DelResponse = $sqs->delete_message($queue_url, $receipt_handle);
     if ( $DelResponse->isOK())
     {
-    	echo "The message was deleted successfully. We're all done here." . PHP_EOL;
+    	$logMsg="The message was deleted successfully. We're all done here.";
+    	cheap_logger($ACTIVITY_NAME, $logMsg);
     	exit;
     }
     else
     {
-    	echo "Hrmm, I was unable to delete that message. Try and figure out why?" . PHP_EOL;
+    	$logMsg="Hrmm, I was unable to delete that message. Try and figure out why?";
+    	cheap_logger($ACTIVITY_NAME, $logMsg);
     	var_dump($DelResponse);
     	exit;
     }
@@ -143,19 +157,22 @@
       $MyStatus = $typeInfo["status"];
 		  if ($MyStatus == "REGISTERED")
 		  {
-		    echo "The domain and workflow exists, so we can add executions now." . PHP_EOL;
+		    $logMsg="The domain and workflow exists, so we can add executions now.";
+		    cheap_logger($ACTIVITY_NAME, $logMsg);
 		  }
 		}
 	  else
 	  {
-	  	echo "Something go boom :(" . PHP_EOL;
+	  	$logMsg="Something go boom :(";
+	  	cheap_logger($ACTIVITY_NAME, $logMsg);	
 	  	exit;
 	  }
   }
 
   function AddExecution($swf, $workflow_domain, $workflow_type_name, $eventType, $instanceID)
   {
-		echo "Starting a new workflow execution..." . PHP_EOL;
+		$logMsg="Starting a new workflow execution...";
+		cheap_logger($ACTIVITY_NAME, $logMsg);
 		$workflow = $swf->start_workflow_execution(array(
 	    'domain'       => $workflow_domain,
 	    'workflowId'   => $instanceID,
@@ -171,11 +188,13 @@
 		
 		if ($workflow->isOK())
 		{
-		    echo "The workflow execution has started..." . PHP_EOL;
+		    $logMsg="The workflow execution has started...";
+		    cheap_logger($ACTIVITY_NAME, $logMsg);
 		}
 		else
 		{
-		    echo "ERROR: The workflow execution has failed to start.";
+		    $logMsg="ERROR: The workflow execution has failed to start.";
+		    cheap_logger($ACTIVITY_NAME, $logMsg);
 		    #need to find a better way to error out on existing jobs vs actuall breakage.
         #var_dump($workflow);
 		}
