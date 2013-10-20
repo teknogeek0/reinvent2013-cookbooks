@@ -85,7 +85,6 @@
       print_r($response->body);
   }
 
-    
   function execute_task($input) 
   {
     if($input != "")
@@ -95,7 +94,7 @@
       $ec2 = new AmazonEC2(array('default_cache_config' => '/tmp/secure-dir'));
       $ec2->set_region($GLOBALS["EC2_Region"]);
 
-      #get some information about our instance
+      #get some information about our instance to find out the vpcID later
       $response = $ec2->describe_instances(array(
         'Filter' => array(
           array('Name' => 'instance-id', 'Value' => "$MyInstance"),
@@ -105,137 +104,64 @@
       if($response->isOK())
       {
         $MyVPC = trim((string)$response->body->reservationSet->item->instancesSet->item->vpcId);
-        $MySubnet = trim((string)$response->body->reservationSet->item->instancesSet->item->subnetId);
         
-        ##find out the VPC's subnets based on the information we got from our instance
-        $response2 = $ec2->describe_subnets(array(
+        ## get our route table based on the tag set for it.
+        $response2 = $ec2->describe_route_tables(array(
         'Filter' => array(
-            array('Name' => 'vpc-id', 'Value' => $MyVPC)
-          ),
+            array('Name' => 'tag:Network', 'Value' => "Private Route"),
+          )
         ));
 
         if($response2->isOK())
         {
-          $MySubnetSet = $response2->body->subnetSet->to_json();
-          $MydumbArray = json_decode($MySubnetSet, TRUE);
-          $MyActualSubnets = $MydumbArray["item"];
-          
-          ##find the subnet that isn't the one we're in, and make ourselves the default route for 0.0.0.0/0
-          foreach($MyActualSubnets as $Subs)
+          $MyRTableID = trim((string)$response2->body->routeTableSet->item->routeTableId);
+          ##echo "this is my route table id: ".$MyRTableID.PHP_EOL;
+          $response3 = $ec2->replace_route($MyRTableID, '0.0.0.0/0', array(
+              'InstanceId' => $MyInstance
+          ));
+
+          if($response3->isOK())
           {
-            $currentSubNet = $Subs["subnetId"];
-
-            if ($currentSubNet != $MySubnet)
+            $successMsg="SUCCESS: VPCRouteMapper: Successfully set the default route on the private route table: ".$MyRTableID." to instance: ".$MyInstance.PHP_EOL;
+            echo $successMsg;
+            return $successMsg;
+          }
+          else
+          {
+            $MyErrCode = trim((string)$response3->body->Errors->Error->Message);
+            ##echo "this is my message".$MyErrCode.PHP_EOL;
+            if(preg_match("/CreateRoute/", $MyErrCode))
             {
-              ##need to get the route_table we will modify
-              $response3 = $ec2->describe_route_tables(array(
-              'Filter' => array(
-                  array('Name' => 'association.subnet-id', 'Value' => $currentSubNet)
-                ),
+              $response4 = $ec2->create_route($MyRTableID, '0.0.0.0/0', array(
+                 'InstanceId' => $MyInstance
               ));
-              
-              if($response3->isOK())
+
+              if($response4->isOK())
               {
-                #need the Route table id that we are going to modify.
-                $MyRTableID = trim((string)$response3->body->routeTableSet->item->routeTableId);
-
-                if(isset($MyRTableID) && $MyRTableID != "")
-                {
-                  echo "this is my route table id: ".$MyRTableID.PHP_EOL;
-                  $response4 = $ec2->replace_route($MyRTableID, '0.0.0.0/0', array(
-                      'InstanceId' => $MyInstance
-                  ));
-
-                  if($response4->isOK())
-                  {
-                    $successMsg="SUCCESS: VPCRouteMapper: Successfully set the default routes in private subnets to instance: ".$MyInstance.PHP_EOL;
-                    echo $successMsg;
-                    return $successMsg;
-                  }
-                  else
-                  {
-                    $failMsg="FAIL: VPCRouteMapper: There was a problem setting the default routes." . PHP_EOL;
-                    echo $failMsg;
-                    var_dump($response4->body);
-                    return $failMsg;
-                  }
-                }
-                else
-                {
-                  echo "ERROR: this subnet has no associated routes\n";
-                  $response5 = $ec2->describe_route_tables(array(
-                      'Filter' => array(
-                        array('Name' => 'vpc-id', 'Value' => "$MyVPC"),
-                        array('Name' => 'association.main', 'Value' => 'true'),
-                    )
-                  ));
-                  echo "this is my current main routetable\n";
-                  
-                  if($response5->isOK())
-                  {
-                    #need the Route table id that we are going to modify.
-                    $MyRTableID2 = trim((string)$response5->body->routeTableSet->item->routeTableId);
-                    
-                    if(isset($MyRTableID2) && $MyRTableID2 != "")
-                    {
-                      echo "this is my route table id: ".$MyRTableID2.PHP_EOL;
-                      $response6 = $ec2->create_route($MyRTableID2, '0.0.0.0/0', array(
-                          'InstanceId' => $MyInstance
-                      ));
-
-                      if($response6->isOK())
-                      {
-                        $assignRoute2Sub = $ec2->associate_route_table($currentSubNet, $MyRTableID2);
-                        if($response6->isOK())
-                        {
-
-                          $successMsg="SUCCESS: VPCRouteMapper: Successfully set the default routes in private subnets to instance: ".$MyInstance.PHP_EOL;
-                          echo $successMsg;
-                          return $successMsg;
-                        }
-                        else
-                        {
-                          $failMsg="FAIL: VPCRouteMapper: There was a problem setting the default routes." . PHP_EOL;
-                          echo $failMsg;
-                          var_dump($assignRoute2Sub->body);
-                          return $failMsg;
-                        }
-                      }
-                      else
-                      {
-                        $failMsg="FAIL: VPCRouteMapper: There was a problem setting the default routes." . PHP_EOL;
-                        echo $failMsg;
-                        var_dump($response6->body);
-                        return $failMsg;
-                      }
-                    }
-                    else
-                    {
-                      $failMsg="FAIL: VPCRouteMapper: There was a problem setting the default routes." . PHP_EOL;
-                      echo $failMsg;
-                      var_dump($response5->body);
-                      return $failMsg;
-                    }
-                  }
-                }
+                $successMsg="SUCCESS: VPCRouteMapper: Successfully set the default route on the private route table: ".$MyRTableID." to instance: ".$MyInstance.PHP_EOL;
+                echo $successMsg;
+                return $successMsg;
               }
               else
               {
                 $failMsg="FAIL: VPCRouteMapper: There was a problem setting the default routes." . PHP_EOL;
                 echo $failMsg;
-                var_dump($response3->body);
+                var_dump($response4->body);
                 return $failMsg;
               }
             }
             else
             {
-              ##do nothing here because we don't want to change the route for our own subnet.
+              $failMsg="FAIL: VPCRouteMapper: There was a problem setting the default routes." . PHP_EOL;
+              echo $failMsg;
+              var_dump($response3->body);
+              return $failMsg;
             }
-          } 
+          }
         }
         else
         {
-          $failMsg = "FAIL: Unable to get information about the VPC this host is in. Something is wrong.".PHP_EOL;
+          $failMsg = "FAIL: Unable to get information about the Private route table in this VPC: ".$MyVPC.PHP_EOL;
           echo $failMsg;
           return $failMsg;
         }
