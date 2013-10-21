@@ -64,26 +64,26 @@
         
         if ($complete_response->isOK())
         {
-          cheap_logger($ACTIVITY_NAME, "RespondActivityTaskCompleted SUCCESS");
+          cheap_logger($GLOBALS["ACTIVITY_NAME"], "RespondActivityTaskCompleted SUCCESS");
         } 
         else 
         {
           // a real application may want to report this failure and retry
-          cheap_logger($ACTIVITY_NAME, "RespondActivityTaskCompleted FAIL");
-          cheap_logger($ACTIVITY_NAME, "Response body:");
+          cheap_logger($GLOBALS["ACTIVITY_NAME"], "RespondActivityTaskCompleted FAIL");
+          cheap_logger($GLOBALS["ACTIVITY_NAME"], "Response body:");
           print_r($complete_response->body);
-          cheap_logger($ACTIVITY_NAME, "Request JSON:");
+          cheap_logger($GLOBALS["ACTIVITY_NAME"], "Request JSON:");
           echo json_encode($complete_opt) . "\n";
         }
     } 
     else 
     {
-        cheap_logger($ACTIVITY_NAME, "PollForActivityTask received empty response.");
+        cheap_logger($GLOBALS["ACTIVITY_NAME"], "PollForActivityTask received empty response.");
     }
   } 
   else 
   {
-      cheap_logger($ACTIVITY_NAME, "Looks like we had trouble talking to SWF and getting a valid response.");
+      cheap_logger($GLOBALS["ACTIVITY_NAME"], "Looks like we had trouble talking to SWF and getting a valid response.");
       print_r($response->body);
   }
 
@@ -118,13 +118,13 @@
         if($response2->isOK())
         {
           $successMsg="SUCCESS: EIPMapper: Successfully created EIP with IP: ".$MyIpAddr.", and attached it to instance: ".$MyInstance.PHP_EOL;
-          cheap_logger($ACTIVITY_NAME, $successMsg);
+          cheap_logger($GLOBALS["ACTIVITY_NAME"], $successMsg);
           return $successMsg;
         }
         else
         {
           $failMsg="FAIL: EIPMapper: There was a problem attaching the EIP to the instance." .PHP_EOL;
-          cheap_logger($ACTIVITY_NAME, $failMsg);
+          cheap_logger($GLOBALS["ACTIVITY_NAME"], $failMsg);
           var_dump($response2->body);
           $response3 = $ec2->release_address(array('AllocationId'=>"$MyAllocId"));
           if($response3->isOK())
@@ -142,7 +142,7 @@
       else
       {
         $failMsg="FAIL: EIPMapper: There was a problem getting an IP address." . PHP_EOL;
-        cheap_logger($ACTIVITY_NAME, $failMsg);
+        cheap_logger($GLOBALS["ACTIVITY_NAME"], $failMsg);
         var_dump($response->body);
         return $failMsg;
       }
@@ -150,7 +150,7 @@
     else
     {
       $failMsg="FAIL: EIPMapper: We got input that we don't understand: ".$input. PHP_EOL;
-      cheap_logger($ACTIVITY_NAME, $failMsg);
+      cheap_logger($GLOBALS["ACTIVITY_NAME"], $failMsg);
       return $failMsg;
     }
   }

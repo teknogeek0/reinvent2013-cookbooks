@@ -64,26 +64,26 @@
         
         if ($complete_response->isOK())
         {
-            cheap_logger("RespondActivityTaskCompleted SUCCESS");
+            cheap_logger($GLOBALS["ACTIVITY_NAME"], "RespondActivityTaskCompleted SUCCESS");
         } 
         else 
         {
           // a real application may want to report this failure and retry
-          cheap_logger($ACTIVITY_NAME, "RespondActivityTaskCompleted FAIL");
-          cheap_logger($ACTIVITY_NAME, "Response body:");
+          cheap_logger($GLOBALS["ACTIVITY_NAME"], "RespondActivityTaskCompleted FAIL");
+          cheap_logger($GLOBALS["ACTIVITY_NAME"], "Response body:");
           print_r($complete_response->body);
-          cheap_logger($ACTIVITY_NAME, $logMsg="Request JSON:");
+          cheap_logger($GLOBALS["ACTIVITY_NAME"], $logMsg="Request JSON:");
           echo json_encode($complete_opt) . "\n";
         }
     } 
     else 
     {
-        cheap_logger($ACTIVITY_NAME, "PollForActivityTask received empty response.");
+        cheap_logger($GLOBALS["ACTIVITY_NAME"], "PollForActivityTask received empty response.");
     }
   } 
   else 
   {
-      cheap_logger($ACTIVITY_NAME, "Looks like we had trouble talking to SWF and getting a valid response.");
+      cheap_logger($GLOBALS["ACTIVITY_NAME"], "Looks like we had trouble talking to SWF and getting a valid response.");
       print_r($response->body);
   }
 
@@ -124,7 +124,7 @@
           if($response3->isOK())
           {
             $successMsg="SUCCESS: VPCRouteMapper: Successfully set the default route on the private route table: ".$MyRTableID." to instance: ".$MyInstance;
-            cheap_logger($ACTIVITY_NAME, $successMsg);
+            cheap_logger($GLOBALS["ACTIVITY_NAME"], $successMsg);
             return $successMsg;
           }
           else
@@ -139,13 +139,13 @@
               if($response4->isOK())
               {
                 $successMsg="SUCCESS: VPCRouteMapper: Successfully set the default route on the private route table: ".$MyRTableID." to instance: ".$MyInstance;
-                cheap_logger($ACTIVITY_NAME, $successMsg);
+                cheap_logger($GLOBALS["ACTIVITY_NAME"], $successMsg);
                 return $successMsg;
               }
               else
               {
                 $failMsg="FAIL: VPCRouteMapper: There was a problem setting the default routes.";
-                cheap_logger($ACTIVITY_NAME, $failMsg);
+                cheap_logger($GLOBALS["ACTIVITY_NAME"], $failMsg);
                 var_dump($response4->body);
                 return $failMsg;
               }
@@ -153,7 +153,7 @@
             else
             {
               $failMsg="FAIL: VPCRouteMapper: There was a problem setting the default routes.";
-              cheap_logger($ACTIVITY_NAME, $failMsg);
+              cheap_logger($GLOBALS["ACTIVITY_NAME"], $failMsg);
               var_dump($response3->body);
               return $failMsg;
             }
@@ -162,21 +162,21 @@
         else
         {
           $failMsg = "FAIL: Unable to get information about the Private route table in this VPC: ".$MyVPC;
-          cheap_logger($ACTIVITY_NAME, $failMsg);
+          cheap_logger($GLOBALS["ACTIVITY_NAME"], $failMsg);
           return $failMsg;
         }
       }
       else
       {
         $failMsg = "FAIL: Unable to talk to the EC2 API. Something is wrong.";
-        cheap_logger($ACTIVITY_NAME, $failMsg);
+        cheap_logger($GLOBALS["ACTIVITY_NAME"], $failMsg);
         return $failMsg;
       }
     }
     else
     {
       $failMsg="FAIL: VPCRouteMapper: We got input that we don't understand: ".$input;
-      cheap_logger($ACTIVITY_NAME, $failMsg);
+      cheap_logger($GLOBALS["ACTIVITY_NAME"], $failMsg);
       return $failMsg;
     }
   }

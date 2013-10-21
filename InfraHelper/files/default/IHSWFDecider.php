@@ -17,7 +17,7 @@
   require_once 'IHCommon.php';
   require_once 'AWSSDKforPHP/sdk.class.php';
   require_once 'HistoryEventIterator.php';
-
+  
   $ACTIVITY_NAME = "IHDecider";
 
 /*
@@ -94,7 +94,7 @@ class BasicWorkflowWorker
         if (!empty($task_token)) 
         {
           if (self::DEBUG) {
-            cheap_logger($ACTIVITY_NAME, "Got history; handing to decider");
+            cheap_logger($GLOBALS["ACTIVITY_NAME"], "Got history; handing to decider");
           }
                              
           $history = $response->body->events();
@@ -113,7 +113,7 @@ class BasicWorkflowWorker
           }
           
           if (self::DEBUG) {
-            cheap_logger($ACTIVITY_NAME, "Responding with decisions: ");
+            cheap_logger($GLOBALS["ACTIVITY_NAME"], "Responding with decisions: ");
             print_r($decision_list);
           }
           
@@ -125,28 +125,28 @@ class BasicWorkflowWorker
           $complete_response = $this->swf->respond_decision_task_completed($complete_opt);
           if ($complete_response->isOK())
           {
-            cheap_logger($ACTIVITY_NAME, "RespondDecisionTaskCompleted SUCCESS");
+            cheap_logger($GLOBALS["ACTIVITY_NAME"], "RespondDecisionTaskCompleted SUCCESS");
             exit;
           } 
           else 
           {
             // a real application may want to report this failure and retry
-            cheap_logger($ACTIVITY_NAME, "RespondDecisionTaskCompleted FAIL");
-            cheap_logger($ACTIVITY_NAME, "Response body: ");
+            cheap_logger($GLOBALS["ACTIVITY_NAME"], "RespondDecisionTaskCompleted FAIL");
+            cheap_logger($GLOBALS["ACTIVITY_NAME"], "Response body: ");
             print_r($complete_response->body);
-            cheap_logger($ACTIVITY_NAME, "Request JSON: ");
+            cheap_logger($GLOBALS["ACTIVITY_NAME"], "Request JSON: ");
             echo json_encode($complete_opt) . "\n";
           }
         } 
         else 
         {
-            cheap_logger($ACTIVITY_NAME, "PollForDecisionTask received empty response");
+            cheap_logger($GLOBALS["ACTIVITY_NAME"], "PollForDecisionTask received empty response");
             exit;
         }
       } 
       else
       {
-        cheap_logger($ACTIVITY_NAME, "ERROR: ");
+        cheap_logger($GLOBALS["ACTIVITY_NAME"], "ERROR: ");
         print_r($response->body);
         
         sleep(2);
@@ -198,7 +198,7 @@ class BasicWorkflowWorker
     $max_event_id = max($max_event_id, intval($event->eventId));
     
     if (BasicWorkflowWorker::DEBUG) {
-        cheap_logger($ACTIVITY_NAME, "event type: $event_type");
+        cheap_logger($GLOBALS["ACTIVITY_NAME"], "event type: $event_type");
         print_r($event);
     }
     
@@ -222,7 +222,7 @@ class BasicWorkflowWorker
         $event_attributes = $event->workflowExecutionStartedEventAttributes;
         $workflow_input = $event_attributes->input;
         if (BasicWorkflowWorker::DEBUG) {
-            cheap_logger($ACTIVITY_NAME, "Workflow input: ");
+            cheap_logger($GLOBALS["ACTIVITY_NAME"], "Workflow input: ");
             print_r($workflow_input);
         }
         $activity_opts = NATThingy($event_type, $event_attributes);
@@ -268,10 +268,10 @@ function NATThingy ($event_type, $event_attributes)
       else
       {
         $failMsg="FAIL: This isn't a task we know how to understand: ".$ASaction. PHP_EOL;
-        cheap_logger($ACTIVITY_NAME, $failMsg);
+        cheap_logger($GLOBALS["ACTIVITY_NAME"], $failMsg);
         exit;
       }
-      cheap_logger($ACTIVITY_NAME, $logMsg);
+      cheap_logger($GLOBALS["ACTIVITY_NAME"], $logMsg);
       return $activity_opts;
     }
     elseif (preg_match("/SUCCESS: (\w*): .*:.*:? (i-.*)/", $event_attributes, $matches))
@@ -300,24 +300,24 @@ function NATThingy ($event_type, $event_attributes)
       }
       else
       {
-        cheap_logger($ACTIVITY_NAME, "Something go boom. You broke it.");
+        cheap_logger($GLOBALS["ACTIVITY_NAME"], "Something go boom. You broke it.");
         exit;
       }
 
-      cheap_logger($ACTIVITY_NAME, $logMsg);
+      cheap_logger($GLOBALS["ACTIVITY_NAME"], $logMsg);
       return $activity_opts;
     }
     elseif (preg_match("/FAIL: (\w*):? (.*:?.*)/", $event_attributes, $matches))
     {
       $justcompleted = $matches[1];
 
-      cheap_logger($ACTIVITY_NAME, "We failed doing what we need to do!! We were trying to $justcompleted");
+      cheap_logger($GLOBALS["ACTIVITY_NAME"], "We failed doing what we need to do!! We were trying to $justcompleted");
       ##need to terminate workflow?
       exit;
     }
     else
     {
-      cheap_logger($ACTIVITY_NAME, "FAIL: We got input that we don't understand: $workflow_input");
+      cheap_logger($GLOBALS["ACTIVITY_NAME"], "FAIL: We got input that we don't understand: $workflow_input");
       exit;
     }
 }
