@@ -64,32 +64,26 @@
         
         if ($complete_response->isOK())
         {
-            $logMsg="RespondActivityTaskCompleted SUCCESS";
-            cheap_logger($ACTIVITY_NAME, $logMsg);
+            cheap_logger("RespondActivityTaskCompleted SUCCESS");
         } 
         else 
         {
           // a real application may want to report this failure and retry
-          $logMsg="RespondActivityTaskCompleted FAIL";
-          cheap_logger($ACTIVITY_NAME, $logMsg);
-          $logMsg="Response body:";
-          cheap_logger($ACTIVITY_NAME, $logMsg);
+          cheap_logger($ACTIVITY_NAME, "RespondActivityTaskCompleted FAIL");
+          cheap_logger($ACTIVITY_NAME, "Response body:");
           print_r($complete_response->body);
-          $logMsg="Request JSON:";
-          cheap_logger($ACTIVITY_NAME, $logMsg);
+          cheap_logger($ACTIVITY_NAME, $logMsg="Request JSON:");
           echo json_encode($complete_opt) . "\n";
         }
     } 
     else 
     {
-        $logMsg="PollForActivityTask received empty response.";
-        cheap_logger($ACTIVITY_NAME, $logMsg);
+        cheap_logger($ACTIVITY_NAME, "PollForActivityTask received empty response.");
     }
   } 
   else 
   {
-      $failMsg="Looks like we had trouble talking to SWF and getting a valid response.";
-      cheap_logger($ACTIVITY_NAME, $failMsg);
+      cheap_logger($ACTIVITY_NAME, "Looks like we had trouble talking to SWF and getting a valid response.");
       print_r($response->body);
   }
 

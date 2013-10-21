@@ -59,49 +59,42 @@
 
 					if ( $eventType == "autoscaling:EC2_INSTANCE_LAUNCH" )
 					{
-						$logMsg="Notification of launch of a new instance";
-						cheap_logger($ACTIVITY_NAME, $logMsg);
+						cheap_logger($ACTIVITY_NAME, "Notification of launch of a new instance");
 						AddExecution($swf, $workflow_domain, $workflow_type_name, $eventType, $instanceID);
 					}
 					elseif ( $eventType == "autoscaling:EC2_INSTANCE_LAUNCH_ERROR" )
 					{
-						$logMsg="Notification of a failed launch of a new instance";
-						cheap_logger($ACTIVITY_NAME, $logMsg);
+						cheap_logger($ACTIVITY_NAME, "Notification of a failed launch of a new instance");
 						##AddExecution($swf, $workflow_domain, $workflow_type_name, $eventType, $instanceID);
 						##do nothing, we'll have no handlers for this
 					}
 					elseif ( $eventType == "autoscaling:EC2_INSTANCE_TERMINATE" )
 					{
-						$logMsg="Notification of an instance termination";
-						cheap_logger($ACTIVITY_NAME, $logMsg);
+						cheap_logger($ACTIVITY_NAME, "Notification of an instance termination");
 						##AddExecution($swf, $workflow_domain, $workflow_type_name, $eventType, $instanceID);
 						##do nothing, we have no handlers yet for this.
 					}
 					elseif ( $eventType == "autoscaling:EC2_INSTANCE_TERMINATE_ERROR" )
 					{
-						$logMsg="Notification of an error of a terminate instance";
-						cheap_logger($ACTIVITY_NAME, $logMsg);
+						cheap_logger($ACTIVITY_NAME, "Notification of an error of a terminate instance");
 						##AddExecution($swf, $workflow_domain, $workflow_type_name, $eventType, $instanceID);
 						##do nothing, we'll have no handlers for this.
 					}
 					else
 					{
-						$logMsg="Looks like there's a new autoscaling notification I can't handle yet! Fix me!";
-						cheap_logger($ACTIVITY_NAME, $logMsg);
+						cheap_logger($ACTIVITY_NAME, "Looks like there's a new autoscaling notification I can't handle yet! Fix me!");
 		        print_r($message_attrs);
 					}
 					
 			  }
 			  elseif ( $eventType == "autoscaling:TEST_NOTIFICATION" )
 			  {
-			   $logMsg="Just a test of a new Auto Scaling notifications topic, nothing for us to do.";
-			   cheap_logger($ACTIVITY_NAME, $logMsg);
+			   cheap_logger($ACTIVITY_NAME, "Just a test of a new Auto Scaling notifications topic, nothing for us to do.");
 			  }
 		  }
 		  else
 		  {
-		    $logMsg="Something made its way into this SQS queue that I am not yet able to understand. Woopsie!";
-		    cheap_logger($ACTIVITY_NAME, $logMsg);
+		    cheap_logger($ACTIVITY_NAME, "Something made its way into this SQS queue that I am not yet able to understand. Woopsie!");
 		    print_r($message_attrs);
 		    
 		  }
@@ -109,15 +102,13 @@
 		}
 		else
 		{
-			$logMsg="No messages for me to take action on. See ya later.";
-			cheap_logger($ACTIVITY_NAME, $logMsg);
+			cheap_logger($ACTIVITY_NAME, "No messages for me to take action on. See ya later.");
 			exit;
 		}
   }
   else
   {
-  	$logMsg="Failure to communicate with SQS. What did you do wrong?";
-  	cheap_logger($ACTIVITY_NAME, $logMsg);
+  	cheap_logger($ACTIVITY_NAME, "Failure to communicate with SQS. What did you do wrong?");
   	var_dump($response);
   	exit;
   }
@@ -128,14 +119,12 @@
     $DelResponse = $sqs->delete_message($queue_url, $receipt_handle);
     if ( $DelResponse->isOK())
     {
-    	$logMsg="The message was deleted successfully. We're all done here.";
-    	cheap_logger($ACTIVITY_NAME, $logMsg);
+    	cheap_logger($ACTIVITY_NAME, "The message was deleted successfully. We're all done here.");
     	exit;
     }
     else
     {
-    	$logMsg="Hrmm, I was unable to delete that message. Try and figure out why?";
-    	cheap_logger($ACTIVITY_NAME, $logMsg);
+    	cheap_logger($ACTIVITY_NAME, "Hrmm, I was unable to delete that message. Try and figure out why?");
     	var_dump($DelResponse);
     	exit;
     }
@@ -157,22 +146,19 @@
       $MyStatus = $typeInfo["status"];
 		  if ($MyStatus == "REGISTERED")
 		  {
-		    $logMsg="The domain and workflow exists, so we can add executions now.";
-		    cheap_logger($ACTIVITY_NAME, $logMsg);
+		    cheap_logger($ACTIVITY_NAME, "The domain and workflow exists, so we can add executions now.");
 		  }
 		}
 	  else
 	  {
-	  	$logMsg="Something go boom :(";
-	  	cheap_logger($ACTIVITY_NAME, $logMsg);	
+	  	cheap_logger($ACTIVITY_NAME, "Something go boom :(");
 	  	exit;
 	  }
   }
 
   function AddExecution($swf, $workflow_domain, $workflow_type_name, $eventType, $instanceID)
   {
-		$logMsg="Starting a new workflow execution...";
-		cheap_logger($ACTIVITY_NAME, $logMsg);
+		cheap_logger($ACTIVITY_NAME, "Starting a new workflow execution...");
 		$workflow = $swf->start_workflow_execution(array(
 	    'domain'       => $workflow_domain,
 	    'workflowId'   => $instanceID,
@@ -188,13 +174,11 @@
 		
 		if ($workflow->isOK())
 		{
-		    $logMsg="The workflow execution has started...";
-		    cheap_logger($ACTIVITY_NAME, $logMsg);
+		    cheap_logger($ACTIVITY_NAME, "The workflow execution has started...");
 		}
 		else
 		{
-		    $logMsg="ERROR: The workflow execution has failed to start.";
-		    cheap_logger($ACTIVITY_NAME, $logMsg);
+		    cheap_logger($ACTIVITY_NAME, "ERROR: The workflow execution has failed to start.");
 		    #need to find a better way to error out on existing jobs vs actuall breakage.
         #var_dump($workflow);
 		}
