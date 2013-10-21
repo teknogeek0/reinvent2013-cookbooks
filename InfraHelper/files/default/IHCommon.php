@@ -23,11 +23,11 @@
     $date = new DateTime();
     if($proc != "" && $logMsg != "")
     {
-      echo $date->format('d/M/o:H:i:s O')." ".gethostname()." ".$proc.": ".$logMsg.PHP_EOL;
+      echo $date->format('d/M/o:H:i:s O')." ".gethostname()." ".$proc."[".getmypid()."]".": ".$logMsg.PHP_EOL;
     }
     else
     {
-      echo "Got an error that was missing information!".PHP_EOL;
+      echo "Got a logging message that was missing information! Ya broke it!".PHP_EOL;
     }
   }
 

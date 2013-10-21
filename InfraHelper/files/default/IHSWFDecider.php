@@ -18,6 +18,8 @@
   require_once 'AWSSDKforPHP/sdk.class.php';
   require_once 'HistoryEventIterator.php';
 
+  $ACTIVITY_NAME = "IHDecider";
+
 /*
  * A decider can be written by modeling the workflow as a state machine. 
  * For complex workflows, this is the easiest model to use.
