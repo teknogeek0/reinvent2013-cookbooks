@@ -1,24 +1,22 @@
-chef Cookbook
+InfraHelper Cookbook
 =============
-TODO: Enter the cookbook description here.
 
-e.g.
-This cookbook makes your favorite breakfast sandwhich.
+Installs InfraHelper scripts, config and cronjobs. This is for use in the Taking AWS Operations to the Next Level bootcamp, Lab 3.
 
 Requirements
 ------------
-TODO: List your cookbook requirements. Be sure to include any requirements this cookbook has on platforms, libraries, other cookbooks, packages, operating systems, etc.
+Only tested on Amazon Linux, but should work anywhere that PHP and the AWS PHP-SDK can be installed.
 
 e.g.
 #### packages
-- `toaster` - chef needs toaster to brown your bagel.
+- `php` - InfraHelper is currently written in PHP
+- `php-amazon-sdk` - InfraHelper makes use of the AWS SDKs to talk to various services
 
 Attributes
 ----------
-TODO: List you cookbook attributes here.
 
 e.g.
-#### chef::default
+#### InfraHelper::default
 <table>
   <tr>
     <th>Key</th>
@@ -27,43 +25,49 @@ e.g.
     <th>Default</th>
   </tr>
   <tr>
-    <td><tt>['chef']['bacon']</tt></td>
-    <td>Boolean</td>
-    <td>whether to include bacon</td>
-    <td><tt>true</tt></td>
+    <td><tt>['InfraHelper']['base_dir']</tt></td>
+    <td>String</td>
+    <td>Dir to install php scripts</td>
+    <td><tt>"/opt/InfraHelper"</tt></td>
+  </tr>
+  <tr>
+    <td><tt>['InfraHelper']['IH_queue']</tt></td>
+    <td>String</td>
+    <td>SQS queue that will take in ASG notifications</td>
+    <td><tt>none</tt></td>
+  </tr>
+  <tr>
+    <td><tt>['InfraHelper']['IHswf_domain']</tt></td>
+    <td>String</td>
+    <td>Existing SWF Domain</td>
+    <td><tt>none</tt></td>
+  </tr>
+  <tr>
+    <td><tt>['InfraHelper']['SWF_Region']</tt></td>
+    <td>String</td>
+    <td>The region where the SWF domain exists</td>
+    <td><tt>"swf.us-west-2.amazonaws.com"</tt></td>
+  </tr>
+  <tr>
+    <td><tt>['InfraHelper']['EC2_Region']</tt></td>
+    <td>String</td>
+    <td>The EC2 region that we'll be working with</td>
+    <td><tt>"ec2.us-west-2.amazonaws.com"</tt></td>
   </tr>
 </table>
 
 Usage
 -----
-#### chef::default
-TODO: Write usage instructions for each cookbook.
+#### InfraHelper::default
 
 e.g.
-Just include `chef` in your node's `run_list`:
+Just include `InfraHelper` in your node's `run_list`:
 
 ```json
 {
   "name":"my_node",
   "run_list": [
-    "recipe[chef]"
+    "recipe[InfraHelper]"
   ]
 }
 ```
-
-Contributing
-------------
-TODO: (optional) If this is a public cookbook, detail the process for contributing. If this is a private cookbook, remove this section.
-
-e.g.
-1. Fork the repository on Github
-2. Create a named feature branch (like `add_component_x`)
-3. Write you change
-4. Write tests for your change (if applicable)
-5. Run the tests, ensuring they all pass
-6. Submit a Pull Request using Github
-
-License and Authors
--------------------
-Authors: TODO: List authors
-
